@@ -1,8 +1,16 @@
+using AlumnosAPI2025.Controllers;
+using AlumnosAPI2025.Custom;
 using Microsoft.AspNetCore.Authentication.JwtBearer;//IMPLEMENTACIÓN DE JWT
 using Microsoft.IdentityModel.Tokens;//IMPLEMENTACIÓN DE JWT
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<Utilidades>();
+
+builder.Services.AddScoped<AccesoController>();
+
+
 
 // Add services to the container.
 //INICIO IMPLEMENTACIÓN DE JWT

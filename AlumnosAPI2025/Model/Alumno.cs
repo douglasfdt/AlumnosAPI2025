@@ -10,5 +10,6 @@
         public string Correo { get; set; }
         public  string Login { get; set; }
         public string Genero { get; set; }
+        public string Clave { get; set; }
     }
 }

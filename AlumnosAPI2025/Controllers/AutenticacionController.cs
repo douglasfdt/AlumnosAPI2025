@@ -7,6 +7,8 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Security.Cryptography;
+
 
 namespace AlumnosAPI2025.Controllers
 {
@@ -17,16 +19,21 @@ namespace AlumnosAPI2025.Controllers
 
         private readonly string secretKey;
         private readonly string cadenaSQL;
+        private readonly AccesoController _accesoController;
 
-        public AutenticacionController(IConfiguration config)
+        public AutenticacionController(IConfiguration config, AccesoController accesoController)
         {
             secretKey = config.GetSection("settings").GetSection("secretKey").ToString();
             cadenaSQL = config.GetConnectionString("Connection");
+            _accesoController = accesoController;
         }
+
+        
+      
 
         [HttpPost]
         [Route("Validar")]
-        public IActionResult Validar([FromBody] Usuario request)
+        public IActionResult Validar([FromBody] Login request)
         {
             try
             {
@@ -36,11 +43,10 @@ namespace AlumnosAPI2025.Controllers
                 {
                     conexion.Open();
 
-                    // Llamamos al procedimiento almacenado para validar el correo y el DNI
-                    var cmd = new SqlCommand("ValidarUsuario", conexion);
+                    var cmd = new SqlCommand("ValidarLogin", conexion);
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@Correo", request.correo);
-                    cmd.Parameters.AddWithValue("@DNI", request.DNI);
+                    cmd.Parameters.AddWithValue("@Login", request.LoginUsuario);
+                    cmd.Parameters.AddWithValue("@Clave", request.Clave);
 
                     // Ejecutamos el procedimiento y obtenemos el resultado
                     var resultado = cmd.ExecuteScalar();
@@ -49,7 +55,7 @@ namespace AlumnosAPI2025.Controllers
                     {
                         var keyBytes = Encoding.ASCII.GetBytes(secretKey);
                         var claims = new ClaimsIdentity();
-                        claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, request.correo));
+                        claims.AddClaim(new Claim(ClaimTypes.NameIdentifier, request.LoginUsuario));
 
                         var tokenDescriptor = new SecurityTokenDescriptor
                         {
